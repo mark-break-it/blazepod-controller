@@ -1,8 +1,17 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BlazePod Controller v6.4 – Automatisch verbinden</title>
-<style>body{font-family:system-ui,-apple-system,sans-serif;background:#101827;color:#f8fafc;margin:0;padding:18px}main{max-width:720px;margin:auto}h1{font-size:25px;margin-bottom:5px}details{margin-top:18px}summary{cursor:pointer;font-weight:700;padding:14px;background:#263449;border-radius:12px}p,small{color:#b8c5d8}section{border:1px solid #40516b;border-radius:16px;padding:16px;margin:16px 0;background:#18253a}button{font:inherit;border:0;border-radius:11px;padding:12px 14px;margin:5px 4px 5px 0;background:#2978ee;color:white;cursor:pointer}button:disabled{opacity:.4;cursor:default}select{font:inherit;background:#263449;color:white;border:1px solid #607087;border-radius:8px;padding:7px}.active{border-color:#22c55e;box-shadow:0 0 0 2px #22c55e55}.green{background:#15803d}.red{background:#b91c1c}.off{background:#475569}.status{font-weight:600;margin:8px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#050b16;padding:15px;border-radius:12px;min-height:150px;font-size:12px;max-height:330px;overflow:auto}.muted{font-size:13px;color:#a8b5c8}</style></head><body><main>
-<h1>BlazePod Controller v6.4</h1><p>Automatisch verbinden van maximaal zes eerder toegestane BlazePods via Safari + beacio.</p>
-<section id="wizard"><h2>BlazePods verbinden</h2><p><button id="autoConnect">Verbind alle pods</button><button id="cancelAuto" disabled>Stop verbinden</button></p><div class="status" id="autoStatus">Klaar om te verbinden (2 tegelijk).</div><div class="muted" id="benchmarkResults">Verbindingstijd verschijnt hier.</div><p>Kies een pod in de Bluetooth-lijst. De handshake en tiklistener worden automatisch ingesteld. Voeg daarna de volgende toe of druk op Klaar.</p><div class="status" id="connectProgress">0 van 6 pods verbonden</div><button id="addPod">+ Volgende BlazePod verbinden</button><button id="finishPods" disabled>Klaar met verbinden</button><button id="resumePods" hidden>Meer pods toevoegen</button><div class="muted" id="wizardMessage">Begin met de eerste BlazePod.</div></section><section id="gamePanel"><h2>Whack-a-Mole</h2><p>Verbind minimaal twee pods, start het spel en tik op de groen oplichtende pod. Eén notificatie telt als één tik; tikken op een verkeerde pod tellen als misser. Controleer eerst of jouw pods alleen bij fysieke tikken notificaties sturen.</p><div class="status" id="gameState">Nog niet gestart</div><div><strong>Score: <span id="score">0</span></strong> · Missers (verkeerd of te laat): <span id="misses">0</span> · Reactietijd: <span id="reaction">—</span></div><button id="startGame">Start spel</button><button id="stopGame" disabled>Stop spel</button><button id="nextRound" disabled>Volgende ronde (test)</button><label style="display:block;margin-top:8px">Maximale wachttijd per ronde <select id="duration"><option value="3000">3 seconden</option><option value="5000" selected>5 seconden</option><option value="10000">10 seconden</option></select></label></section><details><summary>Bluetooth-diagnostiek en handmatige bediening</summary><section><h2>Experimentele scan: alle BlazePods</h2><p>Scan alle zichtbare BlazePods in één keer. Dit is een ontdekkingstest: scannen geeft niet automatisch toestemming om met de gevonden pods te verbinden. De bestaande verbindingswizard en het spel blijven werken.</p><button id="scanAll">Scan alle BlazePods</button><button id="stopAll" disabled>Stop scan</button><button id="checkGranted">Controleer eerder toegestane apparaten</button><div class="status" id="scanStatus">Nog niet gescand</div><div id="scanResults" class="muted">Geen apparaten gevonden.</div></section><div id="slots"></div><button id="alloff">Alle pods uit</button><button id="clear">Log wissen</button><h3>Diagnoselog</h3><pre id="log"></pre></details>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BlazePod Controller v7 – Automatisch verbinden</title>
+<style>body{font-family:system-ui,-apple-system,sans-serif;background:#101827;color:#f8fafc;margin:0;padding:18px}main{max-width:720px;margin:auto}h1{font-size:25px;margin-bottom:5px}details{margin-top:18px}summary{cursor:pointer;font-weight:700;padding:14px;background:#263449;border-radius:12px}p,small{color:#b8c5d8}section{border:1px solid #40516b;border-radius:16px;padding:16px;margin:16px 0;background:#18253a}button{font:inherit;border:0;border-radius:11px;padding:12px 14px;margin:5px 4px 5px 0;background:#2978ee;color:white;cursor:pointer}button:disabled{opacity:.4;cursor:default}select{font:inherit;background:#263449;color:white;border:1px solid #607087;border-radius:8px;padding:7px}.active{border-color:#22c55e;box-shadow:0 0 0 2px #22c55e55}.green{background:#15803d}.red{background:#b91c1c}.off{background:#475569}.status{font-weight:600;margin:8px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#050b16;padding:15px;border-radius:12px;min-height:150px;font-size:12px;max-height:330px;overflow:auto}.muted{font-size:13px;color:#a8b5c8}.timer{font-size:clamp(44px,12vw,70px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;margin:12px 0}.stats{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}.stats span{background:#263449;border-radius:10px;padding:12px;flex:1;text-align:center}.stats strong{display:block;font-size:26px}#endScreen{border:1px solid #52759a;padding:15px;border-radius:14px;margin-top:16px}#gamePanel label{display:block;margin:10px 0}#gamePanel select{font:inherit;background:#263449;color:white;padding:9px;border-radius:8px}</style></head><body><main>
+<h1>BlazePod Controller v7</h1><p>Automatisch verbinden van maximaal zes eerder toegestane BlazePods via Safari + beacio.</p>
+<section id="wizard"><h2>BlazePods verbinden</h2><p><button id="autoConnect">Verbind alle pods</button><button id="cancelAuto" disabled>Stop verbinden</button></p><div class="status" id="autoStatus">Klaar om te verbinden (2 tegelijk).</div><div class="muted" id="benchmarkResults">Verbindingstijd verschijnt hier.</div><p>Kies een pod in de Bluetooth-lijst. De handshake en tiklistener worden automatisch ingesteld. Voeg daarna de volgende toe of druk op Klaar.</p><div class="status" id="connectProgress">0 van 6 pods verbonden</div><button id="addPod">+ Volgende BlazePod verbinden</button><button id="finishPods" disabled>Klaar met verbinden</button><button id="resumePods" hidden>Meer pods toevoegen</button><div class="muted" id="wizardMessage">Begin met de eerste BlazePod.</div></section><section id="gamePanel"><h2>Spel kiezen</h2>
+<label>Spelmodus <select id="gameMode"><option value="reflex">Reflex Rush — 1 minuut</option><option value="mole">Whack-a-Mole — 2 minuten</option></select></label>
+<label id="levelLabel" hidden>Moeilijkheid <select id="level"><option value="easy">Easy (2–5 s)</option><option value="medium">Medium (1–3 s)</option><option value="hard">Hard (0,5–1,5 s)</option></select></label>
+<p id="rules">Eén groen, twee rood. Groen = hit; rood = misser; uit = geen effect.</p>
+<div class="status" id="gameState">Kies een spel en verbind minimaal drie pods.</div>
+<div class="timer" id="countdown">01:00</div>
+<div class="stats"><span>Hits <strong id="hits">0</strong></span><span>Missers <strong id="misses">0</strong></span><span>Score <strong id="score">0</strong></span></div>
+<button id="startGame">Start spel</button><button id="stopGame" disabled>Stop spel</button>
+<div id="endScreen" hidden><h3>Eindresultaat</h3><p id="endReason"></p><div class="stats"><span>Hits <strong id="finalHits">0</strong></span><span>Missers <strong id="finalMisses">0</strong></span><span>Score <strong id="finalScore">0</strong></span></div></div>
+</section><details><summary>Bluetooth-diagnostiek en handmatige bediening</summary><section><h2>Experimentele scan: alle BlazePods</h2><p>Scan alle zichtbare BlazePods in één keer. Dit is een ontdekkingstest: scannen geeft niet automatisch toestemming om met de gevonden pods te verbinden. De bestaande verbindingswizard en het spel blijven werken.</p><button id="scanAll">Scan alle BlazePods</button><button id="stopAll" disabled>Stop scan</button><button id="checkGranted">Controleer eerder toegestane apparaten</button><div class="status" id="scanStatus">Nog niet gescand</div><div id="scanResults" class="muted">Geen apparaten gevonden.</div></section><div id="slots"></div><button id="alloff">Alle pods uit</button><button id="clear">Log wissen</button><h3>Diagnoselog</h3><pre id="log"></pre></details>
 <script>
 
 const UART='6e400001-b5a3-f393-e0a9-e50e24dcca9e',RX='6e400002-b5a3-f393-e0a9-e50e24dcca9e',COLOR_SERVICE='50c97bfa-4cb8-4c84-b745-0e58a0280cd6',COLOR='50c912a2-4cb8-4c84-b745-0e58a0280cd6',TAP_SERVICE='50c928bd-4cb8-4c84-b745-0e58a0280cd6',TAP='50c9727e-4cb8-4c84-b745-0e58a0280cd6';
@@ -41,25 +50,147 @@ $('checkGranted').onclick=async()=>{try{
  $('scanStatus').textContent=matches.length+' eerder toegestane BlazePods';
  for(const d of matches)log(0,'TOEGESTAAN: '+d.name+' · '+d.id);
  }catch(e){log(0,'getDevices: '+e.message)}};
-let wizardDone=false;let game={running:false,active:0,score:0,misses:0,startAt:0,timer:null,token:0,transition:false,lastPod:0,wrongTapAt:{}};
+let wizardDone=false;let game={running:false,mode:'reflex',hits:0,misses:0,deadline:0,epoch:0,clock:null,spawnTimer:null,lights:new Map(),lastTap:{},transition:false};
 for(let i=1;i<=6;i++)$('slots').insertAdjacentHTML('beforeend',`<section id="slot${i}"><h2>Pod ${i}</h2><div class="status" id="state${i}">Niet verbonden</div><button id="connect${i}">Verbind pod ${i}</button><button id="disconnect${i}" disabled>Verbreek</button><div><button class="green" id="green${i}" disabled>Groen</button><button class="red" id="red${i}" disabled>Rood</button><button class="off" id="off${i}" disabled>Uit</button></div><button id="listen${i}" disabled>Luister naar tikken</button><div class="muted" id="info${i}">Nog geen advertentiedata</div></section>`);
 function log(i,s){const el=$('log');el.textContent+=new Date().toLocaleTimeString()+'  '+(i?'[Pod '+i+'] ':'')+s+'\n';if(el.textContent.length>25000)el.textContent=el.textContent.slice(-20000);el.scrollTop=el.scrollHeight}
 function tohex(a){return [...a].map(v=>v.toString(16).padStart(2,'0')).join(' ').toUpperCase()}
 function handshakeFromManufacturer(data){if(data.length<8)throw Error('Minstens 8 advertentiebytes vereist');let tail=data.slice(-5),offset=tail[0],crc=0xffffffff,poly=(0xedb88321+(offset%50))>>>0;for(let b of tail.slice(1)){crc=(crc^b)>>>0;for(let j=0;j<8;j++)crc=crc&1?((crc>>>1)^poly)>>>0:crc>>>1}crc=(crc^0xffffffff)>>>0;crc=(crc+((crc<<3)>>>0))>>>0;crc=(crc^(crc>>>11))>>>0;crc=(crc+((crc<<15)>>>0))>>>0;return Uint8Array.of(0x73,0x65,0x61,crc&255,(crc>>>8)&255,(crc>>>16)&255,(crc>>>24)&255)}
 function controls(i){const p=pods[i];$('connect'+i).disabled=autoBusy||p.busy||p.connected;$('disconnect'+i).disabled=!p.connected;$('green'+i).disabled=!p.connected||!p.color||game.running;$('red'+i).disabled=!p.connected||!p.color||game.running;$('off'+i).disabled=!p.connected||!p.color||game.running;$('listen'+i).disabled=!p.connected||!p.tap||p.listening;$('listen'+i).textContent=p.listening?'Luisteren actief':'Luister naar tikken'}
-function refresh(){for(let i=1;i<=6;i++)controls(i);$('autoConnect').disabled=autoBusy||game.running;$('cancelAuto').disabled=!autoBusy;const count=pods.slice(1).filter(p=>p.connected).length;const busy=pods.slice(1).some(p=>p.busy);$('connectProgress').textContent=count+' van 6 pods verbonden';$('addPod').disabled=autoBusy||busy||count===6||wizardDone||game.running;$('addPod').textContent=busy?'Verbinden...':count===6?'Alle zes verbonden':'+ Volgende BlazePod verbinden';$('finishPods').disabled=count===0||busy||wizardDone||game.running;$('resumePods').hidden=!wizardDone;$('resumePods').disabled=game.running||busy||count===6;$('startGame').disabled=game.running||ready().length<2;$('stopGame').disabled=!game.running;$('nextRound').disabled=!game.running}
-function cleanup(i){const p=pods[i];if(p.tap&&p.listener){try{p.tap.removeEventListener('characteristicvaluechanged',p.listener)}catch(e){}}p.listener=null;p.listening=false;p.rx=p.color=p.tap=null;p.connected=false;p.busy=false;p.manufacturer=null;p.device=null;$('state'+i).textContent='Niet verbonden';$('slot'+i).classList.remove('active');if(game.running&&game.active===i)stopGame('Actieve pod verbroken');refresh()}
+function refresh(){for(let i=1;i<=6;i++)controls(i);$('autoConnect').disabled=autoBusy||game.running;$('cancelAuto').disabled=!autoBusy;const count=pods.slice(1).filter(p=>p.connected).length;const busy=pods.slice(1).some(p=>p.busy);$('connectProgress').textContent=count+' van 6 pods verbonden';$('addPod').disabled=autoBusy||busy||count===6||wizardDone||game.running;$('addPod').textContent=busy?'Verbinden...':count===6?'Alle zes verbonden':'+ Volgende BlazePod verbinden';$('finishPods').disabled=count===0||busy||wizardDone||game.running;$('resumePods').hidden=!wizardDone;$('resumePods').disabled=game.running||busy||count===6;$('startGame').disabled=game.running||ready().length<($('gameMode').value==='reflex'?3:2);$('stopGame').disabled=!game.running;$('gameMode').disabled=game.running;$('level').disabled=game.running}
+function cleanup(i){const p=pods[i];if(p.tap&&p.listener){try{p.tap.removeEventListener('characteristicvaluechanged',p.listener)}catch(e){}}p.listener=null;p.listening=false;p.rx=p.color=p.tap=null;p.connected=false;p.busy=false;p.manufacturer=null;p.device=null;$('state'+i).textContent='Niet verbonden';$('slot'+i).classList.remove('active');if(game.running)finishGame('Bluetooth-verbinding verbroken');refresh()}
 function getManufacturer(e){const v=e.manufacturerData?.get?.(0x09D7);if(!v)return null;return Uint8Array.of(0xD7,0x09,...new Uint8Array(v.buffer,v.byteOffset,v.byteLength))}
 async function waitAdvertisement(device){if(typeof device.watchAdvertisements!=='function')throw Error('watchAdvertisements niet ondersteund');return new Promise((resolve,reject)=>{let settled=false,timer;const finish=(err,data)=>{if(settled)return;settled=true;clearTimeout(timer);device.removeEventListener('advertisementreceived',handler);err?reject(err):resolve(data)};const handler=e=>{const data=getManufacturer(e);if(data)finish(null,data)};timer=setTimeout(()=>finish(Error('Geen actuele advertentiedata binnen 8 seconden')),8000);device.addEventListener('advertisementreceived',handler);Promise.resolve().then(()=>device.watchAdvertisements()).catch(e=>finish(e))})}
 async function connect(i){const p=pods[i];if(p.busy||p.connected)return;p.busy=true;$('state'+i).textContent='Apparaat kiezen...';refresh();let device=null;try{if(!navigator.bluetooth)throw Error('Web Bluetooth niet beschikbaar; controleer beacio');device=await navigator.bluetooth.requestDevice({filters:[{name:'BlazePod'}],optionalManufacturerData:[0x09D7],optionalServices:[UART,COLOR_SERVICE,TAP_SERVICE,'battery_service','device_information']});if(pods.some((x,j)=>j!==i&&x?.connected&&x.device?.id===device.id))throw Error('Deze pod is al verbonden in een ander vak.');p.device=device;log(i,'Gekozen: '+(device.name||'BlazePod'));$('state'+i).textContent='Advertentiedata zoeken...';const data=await waitAdvertisement(device);p.manufacturer=data;$('info'+i).textContent='Manufacturer: '+tohex(data);log(i,'Manufacturer: '+tohex(data));$('state'+i).textContent='Verbinden...';const server=await device.gatt.connect();p.disconnectHandler=()=>{log(i,'VERBINDING VERBROKEN');cleanup(i)};device.addEventListener('gattserverdisconnected',p.disconnectHandler);p.rx=await(await server.getPrimaryService(UART)).getCharacteristic(RX);p.color=await(await server.getPrimaryService(COLOR_SERVICE)).getCharacteristic(COLOR);p.tap=await(await server.getPrimaryService(TAP_SERVICE)).getCharacteristic(TAP);const handshake=handshakeFromManufacturer(data);log(i,'Handshake: '+tohex(handshake));await p.rx.writeValue(handshake);p.connected=true;$('state'+i).textContent='Verbonden';log(i,'Automatische handshake verstuurd');await listen(i);log(i,'Klaar voor spel');$('wizardMessage').textContent='Pod '+i+' is klaar. Voeg nog een pod toe of druk op Klaar.'}catch(e){log(i,'VERBINDINGSFOUT: '+e.message);try{device?.gatt?.disconnect()}catch(_){}cleanup(i);$('state'+i).textContent='Fout: '+e.message}finally{p.busy=false;refresh()}}
 function setColor(i,g,b,r){const p=pods[i];if(!p.connected||!p.color)return Promise.resolve(false);const job=()=>p.color.writeValue(Uint8Array.of(g,b,r,1)).then(()=>true);const result=p.writeQueue.catch(()=>{}).then(job);p.writeQueue=result.catch(()=>{});return result.catch(e=>{log(i,'KLEURFOUT: '+e.message);return false})}
 async function listen(i){const p=pods[i];try{if(!p.tap)throw Error('Tik-characteristic ontbreekt');if(p.listening)return;p.listener=e=>{const v=e.target.value,a=new Uint8Array(v.buffer,v.byteOffset,v.byteLength);log(i,'TIK/NOTIFICATIE: '+tohex(a));onTap(i)};p.tap.addEventListener('characteristicvaluechanged',p.listener);await p.tap.startNotifications();p.listening=true;log(i,'Tiknotificaties actief')}catch(e){if(p.listener&&p.tap)p.tap.removeEventListener('characteristicvaluechanged',p.listener);p.listener=null;log(i,'NOTIFICATIEFOUT: '+e.message)}finally{refresh()}}
 function ready(){return [1,2,3,4,5,6].filter(i=>pods[i].connected&&pods[i].color&&pods[i].listening)}
-function renderScore(){ $('score').textContent=game.score;$('misses').textContent=game.misses }
-function stopGame(reason='Gestopt'){game.running=false;game.token++;clearTimeout(game.timer);game.timer=null;game.active=0;game.transition=false;$('gameState').textContent=reason;for(let i=1;i<=6;i++)$('slot'+i).classList.remove('active');refresh();Promise.all(ready().map(i=>setColor(i,0,0,0)));log(0,'Spel: '+reason)}
-async function nextRound(){if(!game.running)return;const token=++game.token;game.transition=true;clearTimeout(game.timer);const prev=game.active;game.active=0;if(prev){$('slot'+prev).classList.remove('active');await setColor(prev,0,0,0)}if(!game.running||token!==game.token)return;const options=ready();if(options.length<2){stopGame('Te weinig verbonden pods');return}const choices=options.filter(i=>i!==game.lastPod);const list=choices.length?choices:options;const i=list[Math.floor(Math.random()*list.length)];game.active=i;game.lastPod=i;const ok=await setColor(i,255,0,0);if(!game.running||token!==game.token)return;if(!ok){stopGame('Kleurcommando mislukt');return}game.startAt=performance.now();game.transition=false;$('slot'+i).classList.add('active');$('gameState').textContent='Tik op de groene pod!';log(i,'RONDE GESTART');game.timer=setTimeout(()=>{if(!game.running||token!==game.token||game.transition)return;game.misses++;renderScore();$('gameState').textContent='Te laat!';log(i,'TIMEOUT');nextRound()},Number($('duration').value))}
-function onTap(i){if(!game.running||game.transition)return;if(game.active!==i){const now=performance.now();if(now-(game.wrongTapAt[i]||0)<350)return;game.wrongTapAt[i]=now;game.misses++;renderScore();$('gameState').textContent='Verkeerde pod! Tik op de groene.';log(i,'MISSER: verkeerde pod');return;}game.transition=true;clearTimeout(game.timer);const ms=Math.round(performance.now()-game.startAt);game.score++;renderScore();$('reaction').textContent=ms+' ms';$('gameState').textContent='Raak! '+ms+' ms';log(i,'RAAK! '+ms+' ms');nextRound()}
 
+const pick=(a)=>a[Math.floor(Math.random()*a.length)];
+const randomMs=(lo,hi)=>Math.floor(lo+Math.random()*(hi-lo));
+function renderScore(){
+ $('hits').textContent=game.hits;$('misses').textContent=game.misses;
+ $('score').textContent=game.mode==='reflex'?game.hits-game.misses:game.hits;
+}
+function showClock(){
+ const remaining=Math.max(0,game.deadline-performance.now());
+ const seconds=Math.ceil(remaining/1000);
+ $('countdown').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+ if(remaining<=0&&game.running)finishGame('Tijd voorbij!');
+}
+function clearGameTimers(){
+ clearInterval(game.clock);clearTimeout(game.spawnTimer);
+ for(const state of game.lights.values())clearTimeout(state.timer);
+}
+function clearLight(i){
+ const entry=game.lights.get(i);if(!entry)return;
+ clearTimeout(entry.timer);game.lights.delete(i);
+ $('slot'+i).classList.remove('active');
+ setColor(i,0,0,0);
+}
+function finishGame(reason){
+ if(!game.running)return;
+ game.running=false;game.epoch++;clearGameTimers();
+ game.lights.clear();
+ $('gameState').textContent=reason;
+ $('endReason').textContent=reason;
+ $('finalHits').textContent=game.hits;$('finalMisses').textContent=game.misses;
+ $('finalScore').textContent=game.mode==='reflex'?game.hits-game.misses:game.hits;
+ $('endScreen').hidden=false;
+ Promise.all(ready().map(i=>setColor(i,0,0,0)));
+ showClock();refresh();log(0,'SPEL EINDE: '+reason+' | hits '+game.hits+' | missers '+game.misses);
+}
+async function lightUp(i,color,duration=0){
+ if(!game.running||game.lights.has(i))return;
+ const epoch=game.epoch;
+ const entry={color,timer:null,live:false};
+ game.lights.set(i,entry);
+ const ok=await setColor(i,color==='green'?255:0,0,color==='red'?255:0);
+ if(!game.running||epoch!==game.epoch||game.lights.get(i)!==entry)return;
+ if(!ok){game.lights.delete(i);log(i,'Kon kleur niet inschakelen');return}
+ entry.live=true;$('slot'+i).classList.add('active');
+ if(duration){
+  entry.timer=setTimeout(()=>{
+   if(!game.running||game.lights.get(i)!==entry)return;
+   clearLight(i);log(i,'Licht verlopen zonder tik');
+  },duration);
+ }
+}
+async function reflexRound(){
+ if(!game.running)return;
+ const epoch=game.epoch;
+ game.transition=true;
+ for(const i of [...game.lights.keys()])clearLight(i);
+ // Wacht op uitschakelcommando's om oude kleuren niet te laten overlappen.
+ await Promise.all(ready().map(i=>pods[i].writeQueue.catch(()=>{})));
+ if(!game.running||epoch!==game.epoch)return;
+ const choices=[...ready()];
+ if(choices.length<3){finishGame('Minimaal 3 pods nodig');return}
+ const green=pick(choices);choices.splice(choices.indexOf(green),1);
+ const red1=pick(choices);choices.splice(choices.indexOf(red1),1);
+ const red2=pick(choices);
+ await Promise.all([lightUp(green,'green'),lightUp(red1,'red'),lightUp(red2,'red')]);
+ if(!game.running||epoch!==game.epoch)return;
+ game.transition=false;$('gameState').textContent='Tik groen, vermijd rood!';
+}
+function moleDelay(){
+ const ranges={easy:[2000,5000],medium:[1000,3000],hard:[500,1500]};
+ return randomMs(...ranges[$('level').value]);
+}
+function scheduleSpawn(){
+ if(!game.running||game.mode!=='mole')return;
+ const epoch=game.epoch;
+ const delay=randomMs(250,950);
+ game.spawnTimer=setTimeout(async()=>{
+  if(!game.running||epoch!==game.epoch)return;
+  const available=ready().filter(i=>!game.lights.has(i));
+  if(available.length&&game.lights.size<4){
+   const i=pick(available),color=Math.random()<0.65?'green':'red';
+   lightUp(i,color,moleDelay());
+  }
+  scheduleSpawn();
+ },delay);
+}
+function onTap(i){
+ if(!game.running||game.transition)return;
+ const entry=game.lights.get(i);
+ if(!entry||!entry.live)return; // Een uitgeschakelde pod doet niets.
+ const now=performance.now();
+ if(now-(game.lastTap[i]||0)<180)return;
+ game.lastTap[i]=now;
+ // Direct verwijderen zodat een tweede notificatie geen tweede punt oplevert.
+ clearLight(i);
+ if(entry.color==='green'){game.hits++;log(i,'HIT')}
+ else{game.misses++;log(i,'MISSER: rode pod')}
+ renderScore();
+ if(game.mode==='mole'&&game.misses>=3){finishGame('Game over — 3 missers');return}
+ if(game.mode==='reflex'){
+  game.transition=true;
+  $('gameState').textContent=entry.color==='green'?'Raak!':'Rood geraakt!';
+  reflexRound();
+ }
+}
+async function startSelectedGame(){
+ if(game.running)return;
+ const mode=$('gameMode').value;
+ if(ready().length<(mode==='reflex'?3:2))return;
+ game.epoch++;game.running=true;game.mode=mode;game.hits=0;game.misses=0;
+ game.lastTap={};game.lights.clear();game.transition=true;
+ game.deadline=performance.now()+(mode==='reflex'?60000:120000);
+ $('endScreen').hidden=true;renderScore();showClock();refresh();
+ $('gameState').textContent='Pods voorbereiden...';
+ await Promise.all(ready().map(i=>setColor(i,0,0,0)));
+ if(!game.running)return;
+ game.clock=setInterval(showClock,100);
+ if(mode==='reflex')reflexRound();
+ else{game.transition=false;$('gameState').textContent='Tik groen, vermijd rood (3 missers = game over)';scheduleSpawn()}
+}
+function updateMode(){
+ const mole=$('gameMode').value==='mole';
+ $('levelLabel').hidden=!mole;
+ $('rules').textContent=mole?'Groen = hit; rood = misser; 3 missers = game over. Maximaal 4 lichten tegelijk. Groen missen geeft geen straf.':'Eén groen en twee rood. Groen = hit; rood = misser; uit = geen effect. Score = hits − missers.';
+ if(!game.running)$('countdown').textContent=mole?'02:00':'01:00';
+ refresh();
+}
 // Automatisch verbinden: eerst BLE-advertenties verzamelen, daarna alleen
 // eerder toegestane apparaten gebruiken. Geen requestDevice()-dialoog.
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -210,10 +341,10 @@ $('cancelAuto').onclick=()=>{autoCancel=true;$('autoStatus').textContent='Stoppe
 $('addPod').onclick=()=>{if(wizardDone||game.running)return;const slot=[1,2,3,4,5,6].find(i=>!pods[i].connected&&!pods[i].busy);if(slot)connect(slot)};
 $('finishPods').onclick=()=>{wizardDone=true;const n=ready().length;$('wizardMessage').textContent=n+' pods gereed. '+(n>=2?'Je kunt Whack-a-Mole starten.':'Voor Whack-a-Mole heb je minimaal twee pods nodig.');refresh()};
 $('resumePods').onclick=()=>{wizardDone=false;$('wizardMessage').textContent='Je kunt weer pods toevoegen.';refresh()};
-$('startGame').onclick=async()=>{if(game.running||ready().length<2)return;game.running=true;game.score=0;game.misses=0;game.active=0;game.lastPod=0;game.wrongTapAt={};game.transition=true;game.token++;$('reaction').textContent='—';renderScore();refresh();$('gameState').textContent='Pods uitzetten...';await Promise.all(ready().map(i=>setColor(i,0,0,0)));if(game.running)nextRound()};
-$('stopGame').onclick=()=>stopGame();
-$('nextRound').onclick=()=>{if(game.running){game.misses++;renderScore();nextRound()}};
+$('startGame').onclick=startSelectedGame;
+$('stopGame').onclick=()=>finishGame('Spel gestopt');
+$('gameMode').onchange=updateMode;
 for(let i=1;i<=6;i++){$('connect'+i).onclick=()=>connect(i);$('disconnect'+i).onclick=()=>pods[i].device?.gatt?.disconnect();$('green'+i).onclick=()=>setColor(i,255,0,0);$('red'+i).onclick=()=>setColor(i,0,0,255);$('off'+i).onclick=()=>setColor(i,0,0,0);$('listen'+i).onclick=()=>listen(i);controls(i)}
-$('alloff').onclick=()=>{if(game.running)stopGame('Gestopt via Alle pods uit');else Promise.all(ready().map(i=>setColor(i,0,0,0)))};$('clear').onclick=()=>$('log').textContent='';refresh();log(0,'Versie 6.4 geladen: 2 parallel, sequentiële herstelpoging.');
+$('alloff').onclick=()=>{if(game.running)finishGame('Gestopt via Alle pods uit');else Promise.all(ready().map(i=>setColor(i,0,0,0)))};$('clear').onclick=()=>$('log').textContent='';updateMode();log(0,'Versie 7 geladen: Reflex Rush en Whack-a-Mole.');
 
 </script></main></body></html>
