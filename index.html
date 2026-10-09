@@ -1,10 +1,64 @@
-<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BlazePod BLE Test</title><style>body{font-family:system-ui;background:#101827;color:#f8fafc;margin:0;padding:22px}main{max-width:560px;margin:auto}h1{font-size:26px}p{color:#b8c5d8}button,input{font:inherit;border-radius:12px;padding:13px;margin:5px 3px}button{border:0;background:#2978ee;color:white}button:disabled{opacity:.4}input{background:#263449;border:1px solid #607087;color:white;width:90%;box-sizing:border-box}.colors button{min-width:95px}pre{white-space:pre-wrap;word-break:break-word;background:#050b16;padding:15px;border-radius:12px;min-height:160px;font-size:12px}label{display:block;margin-top:15px}small{color:#a8b5c8}</style></head><body><main><h1>BlazePod Bluetooth Test</h1><p>Experimentele test voor één originele BlazePod via Safari + beacio.</p><button id="connect">1. Verbind pod</button><button id="disconnect" disabled>Verbreek</button><div id="state">Niet verbonden</div><label>Manufacturer data (hex, bijvoorbeeld D7 09 5A 01 DE AD BE EF)</label><input id="manufacturer" placeholder="Plak de advertentiebytes hier"><small>Vul alleen de echte bytes van jouw pod in. De standaard Web Bluetooth API geeft deze niet altijd door.</small><div><button id="handshake" disabled>2. Handshake</button><button id="subscribe" disabled>3. Luister naar tikken</button></div><div class="colors"><button id="green" disabled style="background:#15803d">Groen</button><button id="red" disabled style="background:#b91c1c">Rood</button><button id="off" disabled style="background:#475569">Uit</button></div><h3>Diagnoselog</h3><pre id="log"></pre></main><script>
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BlazePod BLE Test v3</title><style>body{font-family:system-ui;background:#101827;color:#f8fafc;margin:0;padding:22px}main{max-width:560px;margin:auto}h1{font-size:26px}p{color:#b8c5d8}button,input{font:inherit;border-radius:12px;padding:13px;margin:5px 3px}button{border:0;background:#2978ee;color:white}button:disabled{opacity:.4}input{background:#263449;border:1px solid #607087;color:white;width:90%;box-sizing:border-box}.colors button{min-width:95px}pre{white-space:pre-wrap;word-break:break-word;background:#050b16;padding:15px;border-radius:12px;min-height:160px;font-size:12px}label{display:block;margin-top:15px}small{color:#a8b5c8}</style></head><body><main><h1>BlazePod Bluetooth Test v3</h1><p>Experimentele test voor één originele BlazePod via Safari + beacio.</p><button id="connect">1. Verbind pod + zoek data</button><button id="disconnect" disabled>Verbreek</button><div id="state">Niet verbonden</div><label>Manufacturer data (hex, bijvoorbeeld D7 09 5A 01 DE AD BE EF)</label><input id="manufacturer" placeholder="Plak de advertentiebytes hier"><small>Versie 3 probeert deze bytes automatisch uit Bluetooth-advertenties te lezen. Als beacio dit niet ondersteunt, kun je ze nog steeds handmatig invoeren.</small><div><button id="scan">Scan advertentiedata (test)</button><button id="stopscan" disabled>Stop scan</button></div><div><button id="handshake" disabled>2. Handshake</button><button id="subscribe" disabled>3. Luister naar tikken</button></div><div class="colors"><button id="green" disabled style="background:#15803d">Groen</button><button id="red" disabled style="background:#b91c1c">Rood</button><button id="off" disabled style="background:#475569">Uit</button></div><h3>Diagnoselog</h3><pre id="log"></pre></main><script>
 const UART='6e400001-b5a3-f393-e0a9-e50e24dcca9e',RX='6e400002-b5a3-f393-e0a9-e50e24dcca9e',COLOR_SERVICE='50c97bfa-4cb8-4c84-b745-0e58a0280cd6',COLOR='50c912a2-4cb8-4c84-b745-0e58a0280cd6',TAP_SERVICE='50c928bd-4cb8-4c84-b745-0e58a0280cd6',TAP='50c9727e-4cb8-4c84-b745-0e58a0280cd6';
-let device,server,rx,color,tap,notificationHandler=null,notificationsStarted=false;const $=id=>document.getElementById(id);function log(s){$('log').textContent+=new Date().toLocaleTimeString()+'  '+s+'\n';$('log').scrollTop=$('log').scrollHeight}function state(s){$('state').textContent=s}function bytes(hex){let clean=hex.replace(/[^0-9a-f]/gi,'');if(clean.length%2)throw Error('Oneven aantal hex-tekens');return Uint8Array.from(clean.match(/../g)?.map(x=>parseInt(x,16))||[])}function tohex(a){return [...a].map(v=>v.toString(16).padStart(2,'0')).join(' ').toUpperCase()}
+let device,server,rx,color,tap,notificationHandler=null,notificationsStarted=false,scan=null,scanHandler=null;const $=id=>document.getElementById(id);function log(s){$('log').textContent+=new Date().toLocaleTimeString()+'  '+s+'\n';$('log').scrollTop=$('log').scrollHeight}function state(s){$('state').textContent=s}function bytes(hex){let clean=hex.replace(/[^0-9a-f]/gi,'');if(clean.length%2)throw Error('Oneven aantal hex-tekens');return Uint8Array.from(clean.match(/../g)?.map(x=>parseInt(x,16))||[])}function tohex(a){return [...a].map(v=>v.toString(16).padStart(2,'0')).join(' ').toUpperCase()}
 function handshakeFromManufacturer(data){if(data.length<8)throw Error('Minstens 8 advertentiebytes vereist');let tail=data.slice(-5),offset=tail[0],crc=0xffffffff,poly=(0xedb88321+(offset%50))>>>0;for(let b of tail.slice(1)){crc=(crc^b)>>>0;for(let j=0;j<8;j++)crc=crc&1?((crc>>>1)^poly)>>>0:crc>>>1}crc=(crc^0xffffffff)>>>0;crc=(crc+((crc<<3)>>>0))>>>0;crc=(crc^(crc>>>11))>>>0;crc=(crc+((crc<<15)>>>0))>>>0;return Uint8Array.of(0x73,0x65,0x61,crc&255,(crc>>>8)&255,(crc>>>16)&255,(crc>>>24)&255)}
+function manufacturerFromEvent(event){
+  const m=event.manufacturerData;
+  if(!m||typeof m.get!=='function')return false;
+  const value=m.get(0x09D7);
+  if(!value)return false;
+  const raw=new Uint8Array(value.buffer,value.byteOffset,value.byteLength);
+  const all=Uint8Array.of(0xD7,0x09,...raw);
+  $('manufacturer').value=tohex(all);
+  log('ACTUELE MANUFACTURER DATA: '+tohex(all));
+  return true;
+}
+async function listenForAdvertisement(d){
+  if(typeof d.watchAdvertisements!=='function'){
+    log('watchAdvertisements niet beschikbaar; gebruik handmatige invoer of scan');
+    return false;
+  }
+  return await new Promise(async resolve=>{
+    let done=false;
+    const finish=ok=>{if(done)return;done=true;clearTimeout(timer);d.removeEventListener('advertisementreceived',handler);resolve(ok)};
+    const handler=e=>{if(manufacturerFromEvent(e))finish(true)};
+    const timer=setTimeout(()=>finish(false),6500);
+    d.addEventListener('advertisementreceived',handler);
+    try{log('Zoeken naar advertentiedata van gekozen pod (max 6,5 sec)...');await d.watchAdvertisements()}
+    catch(e){log('Advertenties volgen niet mogelijk: '+e.message);finish(false)}
+  });
+}
+$('scan').onclick=async()=>{
+  try{
+    if(!navigator.bluetooth||typeof navigator.bluetooth.requestLEScan!=='function')throw Error('requestLEScan niet ondersteund door deze browser/extensie');
+    if(scan){try{scan.stop()}catch(e){}scan=null}
+    scan=await navigator.bluetooth.requestLEScan({filters:[{name:'BlazePod'}],keepRepeatedDevices:true});
+    scanHandler=e=>{
+      if(!e.device||e.device.name!=='BlazePod')return;
+      if(manufacturerFromEvent(e))log('Scanresultaat ontvangen; controleer of dit jouw gekozen pod is');
+    };
+    navigator.bluetooth.addEventListener('advertisementreceived',scanHandler);
+    $('stopscan').disabled=false;
+    log('Scan actief. LET OP: bij meerdere pods kan de waarde van een andere pod komen.');
+  }catch(e){log('SCANFOUT: '+e.message)}
+};
+$('stopscan').onclick=()=>{
+  try{scan?.stop()}catch(e){}
+  scan=null;
+  if(scanHandler)navigator.bluetooth.removeEventListener('advertisementreceived',scanHandler);
+  scanHandler=null;
+  $('stopscan').disabled=true;
+  log('Scan gestopt');
+};
 function controls(on){if(!on){$('subscribe').textContent='3. Luister naar tikken';notificationsStarted=false;}for(let id of ['handshake','subscribe','green','red','off','disconnect'])$(id).disabled=!on;$('connect').disabled=on}
-$('connect').onclick=async()=>{try{if(!navigator.bluetooth)throw Error('Web Bluetooth niet beschikbaar: controleer de beacio-extensie');log('Bluetooth apparaatkiezer openen');device=await navigator.bluetooth.requestDevice({filters:[{name:'BlazePod'}],optionalServices:[UART,COLOR_SERVICE,TAP_SERVICE,'battery_service','device_information']});device.addEventListener('gattserverdisconnected',()=>{log('VERBINDING VERBROKEN');state('Verbroken');controls(false);if(tap&&notificationHandler)tap.removeEventListener('characteristicvaluechanged',notificationHandler);notificationHandler=null;notificationsStarted=false;rx=color=tap=null});log('Gekozen: '+device.name);server=await device.gatt.connect();state('Verbonden');controls(true);log('GATT verbonden');for(let [label,svc,chr] of [['UART RX',UART,RX],['Kleur',COLOR_SERVICE,COLOR],['Tik',TAP_SERVICE,TAP]]){try{let c=await (await server.getPrimaryService(svc)).getCharacteristic(chr);if(label==='UART RX')rx=c;if(label==='Kleur')color=c;if(label==='Tik')tap=c;log(label+' gevonden')}catch(e){log(label+' niet beschikbaar: '+e.message)}}}catch(e){log('VERBINDINGSFOUT: '+e.message);state('Niet verbonden');controls(false)}};
+$('connect').onclick=async()=>{try{if(!navigator.bluetooth)throw Error('Web Bluetooth niet beschikbaar: controleer de beacio-extensie');log('Bluetooth apparaatkiezer openen');device=await navigator.bluetooth.requestDevice({filters:[{name:'BlazePod'}],optionalServices:[UART,COLOR_SERVICE,TAP_SERVICE,'battery_service','device_information'],optionalManufacturerData:[0x09D7]});device.addEventListener('gattserverdisconnected',()=>{log('VERBINDING VERBROKEN');state('Verbroken');controls(false);if(tap&&notificationHandler)tap.removeEventListener('characteristicvaluechanged',notificationHandler);notificationHandler=null;notificationsStarted=false;rx=color=tap=null});log('Gekozen: '+device.name);
+if(scan){$('stopscan').click()}
+const autoFound=await listenForAdvertisement(device);
+log(autoFound?'Automatische data gevonden':'Geen automatische data gevonden; vul indien nodig handmatig in');
+server=await device.gatt.connect();state('Verbonden');controls(true);log('GATT verbonden');for(let [label,svc,chr] of [['UART RX',UART,RX],['Kleur',COLOR_SERVICE,COLOR],['Tik',TAP_SERVICE,TAP]]){try{let c=await (await server.getPrimaryService(svc)).getCharacteristic(chr);if(label==='UART RX')rx=c;if(label==='Kleur')color=c;if(label==='Tik')tap=c;log(label+' gevonden')}catch(e){log(label+' niet beschikbaar: '+e.message)}}
+if(autoFound&&rx){log('Automatische handshake verzenden');try{let packet=handshakeFromManufacturer(bytes($('manufacturer').value));log('Handshake: '+tohex(packet));await rx.writeValue(packet);log('Automatische handshake verstuurd (acceptatie nog niet bevestigd)')}catch(e){log('AUTO-HANDSHAKEFOUT: '+e.message)}}
+}catch(e){log('VERBINDINGSFOUT: '+e.message);state('Niet verbonden');controls(false)}};
 $('handshake').onclick=async()=>{try{if(!rx)throw Error('UART RX ontbreekt');let data=bytes($('manufacturer').value);let packet=handshakeFromManufacturer(data);log('Handshake verzenden: '+tohex(packet));await rx.writeValue(packet);log('Handshake verzonden (acceptatie nog niet bevestigd)')}catch(e){log('HANDSHAKEFOUT: '+e.message)}};
 $('subscribe').onclick=async()=>{try{if(!tap)throw Error('Tik-characteristic ontbreekt');if(notificationsStarted){log('Tiknotificaties zijn al actief (geen extra listener toegevoegd)');return;}await tap.startNotifications();notificationHandler=e=>{let v=e.target.value,a=new Uint8Array(v.buffer,v.byteOffset,v.byteLength);let ms=a.length>=5?new DataView(a.buffer,a.byteOffset,a.byteLength).getUint32(1,true):null;log('TIK/NOTIFICATIE: '+tohex(a)+(ms!==null?' | '+ms+' ms':''))};tap.addEventListener('characteristicvaluechanged',notificationHandler);notificationsStarted=true;$('subscribe').disabled=true;$('subscribe').textContent='Luisteren actief';log('Tiknotificaties actief (één listener)')}catch(e){log('NOTIFICATIEFOUT: '+e.message)}};
-async function setColor(g,b,r){try{if(!color)throw Error('Kleur-characteristic ontbreekt');await color.writeValue(Uint8Array.of(g,b,r,1));log('Kleurcommando verzonden')}catch(e){log('KLEURFOUT: '+e.message)}}$('green').onclick=()=>setColor(255,0,0);$('red').onclick=()=>setColor(0,0,255);$('off').onclick=()=>setColor(0,0,0);$('disconnect').onclick=()=>device?.gatt?.disconnect();log('Pagina geladen; wacht op verbinding.');
+async function setColor(g,b,r){try{if(!color)throw Error('Kleur-characteristic ontbreekt');await color.writeValue(Uint8Array.of(g,b,r,1));log('Kleurcommando verzonden')}catch(e){log('KLEURFOUT: '+e.message)}}$('green').onclick=()=>setColor(255,0,0);$('red').onclick=()=>setColor(0,0,255);$('off').onclick=()=>setColor(0,0,0);$('disconnect').onclick=()=>device?.gatt?.disconnect();log('Versie 3 geladen; automatische manufacturer-data is experimenteel.');
 </script></body></html>
