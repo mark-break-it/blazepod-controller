@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BlazePod Controller v8 – Automatisch verbinden</title>
-<style>body{font-family:system-ui,-apple-system,sans-serif;background:#101827;color:#f8fafc;margin:0;padding:18px}main{max-width:720px;margin:auto}h1{font-size:25px;margin-bottom:5px}details{margin-top:18px}summary{cursor:pointer;font-weight:700;padding:14px;background:#263449;border-radius:12px}p,small{color:#b8c5d8}section{border:1px solid #40516b;border-radius:16px;padding:16px;margin:16px 0;background:#18253a}button{font:inherit;border:0;border-radius:11px;padding:12px 14px;margin:5px 4px 5px 0;background:#2978ee;color:white;cursor:pointer}button:disabled{opacity:.4;cursor:default}select{font:inherit;background:#263449;color:white;border:1px solid #607087;border-radius:8px;padding:7px}.active{border-color:#22c55e;box-shadow:0 0 0 2px #22c55e55}.green{background:#15803d}.red{background:#b91c1c}.off{background:#475569}.status{font-weight:600;margin:8px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#050b16;padding:15px;border-radius:12px;min-height:150px;font-size:12px;max-height:330px;overflow:auto}.muted{font-size:13px;color:#a8b5c8}.timer{font-size:clamp(44px,12vw,70px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;margin:12px 0}.stats{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}.stats span{background:#263449;border-radius:10px;padding:12px;flex:1;text-align:center}.stats strong{display:block;font-size:26px}#endScreen{border:1px solid #52759a;padding:15px;border-radius:14px;margin-top:16px}#gamePanel label{display:block;margin:10px 0}#gamePanel select{font:inherit;background:#263449;color:white;padding:9px;border-radius:8px}</style></head><body><main>
-<h1>BlazePod Controller v8</h1><p>Automatisch verbinden van maximaal zes eerder toegestane BlazePods via Safari + beacio.</p>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BlazePod Controller v8.2 – Automatisch verbinden</title>
+<style>body{font-family:system-ui,-apple-system,sans-serif;background:#101827;color:#f8fafc;margin:0;padding:18px}main{max-width:720px;margin:auto}h1{font-size:25px;margin-bottom:5px}details{margin-top:18px}summary{cursor:pointer;font-weight:700;padding:14px;background:#263449;border-radius:12px}p,small{color:#b8c5d8}section{border:1px solid #40516b;border-radius:16px;padding:16px;margin:16px 0;background:#18253a}button{font:inherit;border:0;border-radius:11px;padding:12px 14px;margin:5px 4px 5px 0;background:#2978ee;color:white;cursor:pointer}button:disabled{opacity:.4;cursor:default}select{font:inherit;background:#263449;color:white;border:1px solid #607087;border-radius:8px;padding:7px}.active{border-color:#22c55e;box-shadow:0 0 0 2px #22c55e55}.green{background:#15803d}.red{background:#b91c1c}.off{background:#475569}.status{font-weight:600;margin:8px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#050b16;padding:15px;border-radius:12px;min-height:150px;font-size:12px;max-height:330px;overflow:auto}.muted{font-size:13px;color:#a8b5c8}.timer{font-size:clamp(44px,12vw,70px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;margin:12px 0}.stats{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}.stats span{background:#263449;border-radius:10px;padding:12px;flex:1;text-align:center}.stats strong{display:block;font-size:26px}#endScreen{border:1px solid #52759a;padding:15px;border-radius:14px;margin-top:16px}#gamePanel label{display:block;margin:10px 0}#gamePanel select{font:inherit;background:#263449;color:white;padding:9px;border-radius:8px}[hidden]{display:none!important}</style></head><body><main>
+<h1>BlazePod Controller v8.2</h1><p>Automatisch verbinden van maximaal zes eerder toegestane BlazePods via Safari + beacio.</p>
 <section id="wizard"><h2>BlazePods verbinden</h2><p><button id="autoConnect">Verbind alle pods</button><button id="cancelAuto" disabled>Stop verbinden</button></p><div class="status" id="autoStatus">Klaar om te verbinden (2 tegelijk).</div><div class="muted" id="benchmarkResults">Verbindingstijd verschijnt hier.</div><p>Kies een pod in de Bluetooth-lijst. De handshake en tiklistener worden automatisch ingesteld. Voeg daarna de volgende toe of druk op Klaar.</p><div class="status" id="connectProgress">0 van 6 pods verbonden</div><button id="addPod">+ Volgende BlazePod verbinden</button><button id="finishPods" disabled>Klaar met verbinden</button><button id="resumePods" hidden>Meer pods toevoegen</button><div class="muted" id="wizardMessage">Begin met de eerste BlazePod.</div></section><section id="gamePanel"><h2>Spel kiezen</h2>
 <label>Spelmodus <select id="gameMode"><option value="reflex">Reflex Rush — 1 minuut</option><option value="mole">Whack-a-Mole — 2 minuten</option><option value="endless">Whack-a-Mole Endless</option><option value="versus">Reflex Rush — 2 Player VS</option><option value="color">Color Rush — 2 Player</option></select></label>
 <label id="levelLabel" hidden>Moeilijkheid <select id="level"><option value="easy">Easy (2–5 s)</option><option value="medium">Medium (1–3 s)</option><option value="hard">Hard (0,5–1,5 s)</option></select></label>
@@ -50,7 +50,7 @@ $('checkGranted').onclick=async()=>{try{
  $('scanStatus').textContent=matches.length+' eerder toegestane BlazePods';
  for(const d of matches)log(0,'TOEGESTAAN: '+d.name+' · '+d.id);
  }catch(e){log(0,'getDevices: '+e.message)}};
-let wizardDone=false;let game={running:false,mode:'reflex',hits:0,misses:0,deadline:0,epoch:0,clock:null,spawnTimer:null,lights:new Map(),lastTap:{},transition:false,players:[0,0],playerMisses:[0,0],groups:[[],[]],setupTimer:null,setupActive:false,startedAt:0,roundLock:false};
+let wizardDone=false;let game={running:false,mode:'reflex',hits:0,misses:0,deadline:0,epoch:0,clock:null,spawnTimer:null,lights:new Map(),lastTap:{},transition:false,players:[0,0],playerMisses:[0,0],groups:[[],[]],setupTimer:null,setupActive:false,startedAt:0,roundLock:false,playerLocks:[false,false]};
 for(let i=1;i<=6;i++)$('slots').insertAdjacentHTML('beforeend',`<section id="slot${i}"><h2>Pod ${i}</h2><div class="status" id="state${i}">Niet verbonden</div><button id="connect${i}">Verbind pod ${i}</button><button id="disconnect${i}" disabled>Verbreek</button><div><button class="green" id="green${i}" disabled>Groen</button><button class="red" id="red${i}" disabled>Rood</button><button class="off" id="off${i}" disabled>Uit</button></div><button id="listen${i}" disabled>Luister naar tikken</button><div class="muted" id="info${i}">Nog geen advertentiedata</div></section>`);
 function log(i,s){const el=$('log');el.textContent+=new Date().toLocaleTimeString()+'  '+(i?'[Pod '+i+'] ':'')+s+'\n';if(el.textContent.length>25000)el.textContent=el.textContent.slice(-20000);el.scrollTop=el.scrollHeight}
 function tohex(a){return [...a].map(v=>v.toString(16).padStart(2,'0')).join(' ').toUpperCase()}
@@ -114,6 +114,10 @@ function finishGame(reason){
  game.running=false;game.epoch++;clearGameTimers();
  game.lights.clear();
  $('gameState').textContent=reason;
+ if(game.mode==='versus'){
+  const a=game.players[0]-game.playerMisses[0],b=game.players[1]-game.playerMisses[1];
+  reason+=' — '+(a>b?'Speler 1 wint!':b>a?'Speler 2 wint!':'Gelijkspel!');
+ }
  $('endReason').textContent=reason;
  $('finalHits').textContent=game.hits;$('finalMisses').textContent=game.misses;
  $('finalScore').textContent=game.mode==='reflex'?game.hits-game.misses:game.hits;
@@ -199,15 +203,30 @@ async function colorRound(){
  await showPattern(colorPattern());
  if(game.running)$('gameState').textContent='Speler 1: groen · Speler 2: blauw';
 }
+async function versusPlayerRound(player){
+ if(!game.running||game.mode!=='versus')return;
+ const epoch=game.epoch;
+ game.playerLocks[player]=true;
+ const group=game.groups[player];
+ for(const i of group)clearLight(i);
+ // Alleen wachten op de Bluetooth-schrijfopdrachten van deze speler.
+ await Promise.all(group.map(i=>pods[i].writeQueue.catch(()=>{})));
+ if(!game.running||epoch!==game.epoch)return;
+ const [correct,wrong]=shuffle(group);
+ await Promise.all([
+  lightUp(correct,player===0?'green':'blue'),
+  lightUp(wrong,'red')
+ ]);
+ if(!game.running||epoch!==game.epoch)return;
+ game.playerLocks[player]=false;
+}
 async function versusRound(){
  if(!game.running)return;
- const pattern=[];
- for(const [idx,group] of game.groups.entries()){
-  const ordered=shuffle(group),target=ordered[0];
-  for(const i of group)pattern.push([i,i===target?(idx===0?'green':'blue'):'red']);
- }
- await showPattern(pattern);
- if(game.running)$('gameState').textContent='P1 raakt groen · P2 raakt blauw · rood = misser';
+ game.transition=true;
+ await Promise.all([versusPlayerRound(0),versusPlayerRound(1)]);
+ if(!game.running)return;
+ game.transition=false;
+ $('gameState').textContent='P1: groen / rood · P2: blauw / rood · derde pod uit';
 }
 function onTap(i){
  if(!game.running||game.transition)return;
@@ -216,20 +235,26 @@ function onTap(i){
  const now=performance.now();
  if(now-(game.lastTap[i]||0)<180)return;
  game.lastTap[i]=now;
- if(duoMode(game.mode)){
-  if(game.roundLock)return;
-  const player=game.mode==='versus'?(game.groups[0].includes(i)?0:1):(entry.color==='green'?0:entry.color==='blue'?1:-1);
-  const valid=game.mode==='versus'?(player===0?entry.color==='green':entry.color==='blue'):(entry.color==='green'||entry.color==='blue');
-  if(!valid&&game.mode==='color')return; // andere kleuren tellen niet
-  game.roundLock=true;
+ if(game.mode==='versus'){
+  const player=game.groups[0].includes(i)?0:game.groups[1].includes(i)?1:-1;
+  if(player<0||game.playerLocks[player])return;
+  const valid=entry.color===(player===0?'green':'blue');
+  game.playerLocks[player]=true;
   if(valid){game.players[player]++;log(i,'PUNT speler '+(player+1))}
-  else{game.playerMisses[player]++;log(i,'MISSER speler '+(player+1))}
+  else if(entry.color==='red'){game.playerMisses[player]++;log(i,'MISSER speler '+(player+1))}
+  else{game.playerLocks[player]=false;return}
   renderScore();
+  versusPlayerRound(player);
+  return;
+ }
+ if(game.mode==='color'){
+  if(game.roundLock)return;
+  const player=entry.color==='green'?0:entry.color==='blue'?1:-1;
+  if(player<0)return;
+  game.roundLock=true;game.players[player]++;renderScore();
+  log(i,'PUNT speler '+(player+1));
   const epoch=game.epoch;
-  (async()=>{
-   if(game.mode==='versus')await versusRound();else await colorRound();
-   if(epoch===game.epoch)game.roundLock=false;
-  })();
+  (async()=>{await colorRound();if(epoch===game.epoch)game.roundLock=false})();
   return;
  }
  clearLight(i);
@@ -262,7 +287,7 @@ async function startSelectedGame(){
   $('gameState').textContent='Deel eerst de 6 pods in via Pods indelen.';return;
  }
  stopSetup();
- game.epoch++;game.running=true;game.mode=mode;game.hits=0;game.misses=0;game.players=[0,0];game.playerMisses=[0,0];game.roundLock=false;
+ game.epoch++;game.running=true;game.mode=mode;game.hits=0;game.misses=0;game.players=[0,0];game.playerMisses=[0,0];game.roundLock=false;game.playerLocks=[false,false];
  game.lastTap={};game.lights.clear();game.transition=true;
  game.startedAt=performance.now();game.deadline=game.startedAt+(mode==='mole'?120000:60000);
  $('endScreen').hidden=true;renderScore();refresh();
@@ -284,7 +309,7 @@ function updateMode(){
  reflex:'1 groene en 2 rode pods. Groen = hit; rood = misser. Score = hits − missers.',
  mole:'Willekeurig groen en rood, maximaal 4 tegelijk. Bij 3 rode tikken game over. Groen laten verlopen is geen misser.',
  endless:'Endless: na 30 s Medium, 60 s Medium/Hard, 90 s Hard; daarna iedere 30 s 0,1 s sneller, minimaal 0,3 s. 3 missers = game over.',
- versus:'Verdeel 6 pods in twee groepen van 3. Speler 1 tikt groen, speler 2 blauw. Rode pods geven de betreffende speler een misser. Score = hits − missers. Na iedere tik wisselen de doelen.',
+ versus:'Verdeel 6 pods in twee groepen van 3. Speler 1 tikt groen, speler 2 blauw. Rode pods geven de betreffende speler een misser. Score = hits − missers. Na iedere tik veranderen alleen de 3 pods van die speler; de derde pod blijft uit.',
  color:'Alle 6 pods hebben verschillende kleuren. Tik groen voor speler 1 of blauw voor speler 2. Na iedere geldige tik krijgen alle pods nieuwe kleuren.'
  };
  $('rules').textContent=rules[mode];
@@ -452,6 +477,6 @@ $('startGame').onclick=startSelectedGame;
 $('stopGame').onclick=()=>finishGame('Spel gestopt');
 $('gameMode').onchange=updateMode;
 for(let i=1;i<=6;i++){$('connect'+i).onclick=()=>connect(i);$('disconnect'+i).onclick=()=>pods[i].device?.gatt?.disconnect();$('green'+i).onclick=()=>setColor(i,255,0,0);$('red'+i).onclick=()=>setColor(i,0,0,255);$('off'+i).onclick=()=>setColor(i,0,0,0);$('listen'+i).onclick=()=>listen(i);controls(i)}
-$('alloff').onclick=()=>{if(game.running)finishGame('Gestopt via Alle pods uit');else {stopSetup();Promise.all(ready().map(i=>paint(i,'off')))}};$('clear').onclick=()=>$('log').textContent='';updateMode();log(0,'Versie 8 geladen: Reflex Rush en Whack-a-Mole.');
+$('alloff').onclick=()=>{if(game.running)finishGame('Gestopt via Alle pods uit');else {stopSetup();Promise.all(ready().map(i=>paint(i,'off')))}};$('clear').onclick=()=>$('log').textContent='';updateMode();log(0,'Versie 8.2 geladen: onafhankelijke Reflex Rush VS-spelers.');
 
 </script></main></body></html>
