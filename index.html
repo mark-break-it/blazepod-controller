@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BlazePod Controller v6.1 – Bluetooth scan test</title>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BlazePod Controller v6.2 – Automatisch verbinden</title>
 <style>body{font-family:system-ui,-apple-system,sans-serif;background:#101827;color:#f8fafc;margin:0;padding:18px}main{max-width:720px;margin:auto}h1{font-size:25px;margin-bottom:5px}p,small{color:#b8c5d8}section{border:1px solid #40516b;border-radius:16px;padding:16px;margin:16px 0;background:#18253a}button{font:inherit;border:0;border-radius:11px;padding:12px 14px;margin:5px 4px 5px 0;background:#2978ee;color:white;cursor:pointer}button:disabled{opacity:.4;cursor:default}select{font:inherit;background:#263449;color:white;border:1px solid #607087;border-radius:8px;padding:7px}.active{border-color:#22c55e;box-shadow:0 0 0 2px #22c55e55}.green{background:#15803d}.red{background:#b91c1c}.off{background:#475569}.status{font-weight:600;margin:8px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#050b16;padding:15px;border-radius:12px;min-height:150px;font-size:12px;max-height:330px;overflow:auto}.muted{font-size:13px;color:#a8b5c8}</style></head><body><main>
-<h1>BlazePod Controller v5.1</h1><p>Test twee originele BlazePods tegelijk via Safari + beacio. Selecteer bij de tweede verbinding een <strong>andere fysieke pod</strong>.</p>
-<section><h2>Whack-a-Mole</h2><p>Verbind minimaal twee pods, start het spel en tik op de groen oplichtende pod. Eén notificatie telt als één tik; tikken op een verkeerde pod tellen als misser. Controleer eerst of jouw pods alleen bij fysieke tikken notificaties sturen.</p><div class="status" id="gameState">Nog niet gestart</div><div><strong>Score: <span id="score">0</span></strong> · Missers (verkeerd of te laat): <span id="misses">0</span> · Reactietijd: <span id="reaction">—</span></div><button id="startGame">Start spel</button><button id="stopGame" disabled>Stop spel</button><button id="nextRound" disabled>Volgende ronde (test)</button><label style="display:block;margin-top:8px">Maximale wachttijd per ronde <select id="duration"><option value="3000">3 seconden</option><option value="5000" selected>5 seconden</option><option value="10000">10 seconden</option></select></label></section><section id="wizard"><h2>BlazePods toevoegen</h2><p>Kies een pod in de Bluetooth-lijst. De handshake en tiklistener worden automatisch ingesteld. Voeg daarna de volgende toe of druk op Klaar.</p><div class="status" id="connectProgress">0 van 6 pods verbonden</div><button id="addPod">+ Volgende BlazePod verbinden</button><button id="finishPods" disabled>Klaar met verbinden</button><button id="resumePods" hidden>Meer pods toevoegen</button><div class="muted" id="wizardMessage">Begin met de eerste BlazePod.</div></section><section><h2>Experimentele scan: alle BlazePods</h2><p>Scan alle zichtbare BlazePods in één keer. Dit is een ontdekkingstest: scannen geeft niet automatisch toestemming om met de gevonden pods te verbinden. De bestaande verbindingswizard en het spel blijven werken.</p><button id="scanAll">Scan alle BlazePods</button><button id="stopAll" disabled>Stop scan</button><button id="checkGranted">Controleer eerder toegestane apparaten</button><div class="status" id="scanStatus">Nog niet gescand</div><div id="scanResults" class="muted">Geen apparaten gevonden.</div></section><div id="slots"></div><button id="alloff">Alle pods uit</button><button id="clear">Log wissen</button><h3>Diagnoselog</h3><pre id="log"></pre>
+<h1>BlazePod Controller v6.2</h1><p>Automatisch verbinden van maximaal zes eerder toegestane BlazePods via Safari + beacio.</p>
+<section><h2>Whack-a-Mole</h2><p>Verbind minimaal twee pods, start het spel en tik op de groen oplichtende pod. Eén notificatie telt als één tik; tikken op een verkeerde pod tellen als misser. Controleer eerst of jouw pods alleen bij fysieke tikken notificaties sturen.</p><div class="status" id="gameState">Nog niet gestart</div><div><strong>Score: <span id="score">0</span></strong> · Missers (verkeerd of te laat): <span id="misses">0</span> · Reactietijd: <span id="reaction">—</span></div><button id="startGame">Start spel</button><button id="stopGame" disabled>Stop spel</button><button id="nextRound" disabled>Volgende ronde (test)</button><label style="display:block;margin-top:8px">Maximale wachttijd per ronde <select id="duration"><option value="3000">3 seconden</option><option value="5000" selected>5 seconden</option><option value="10000">10 seconden</option></select></label></section><section id="wizard"><h2>BlazePods toevoegen</h2><p><button id="autoConnect">Verbind alle toegestane BlazePods</button><button id="cancelAuto" disabled>Stop automatisch verbinden</button></p><div class="status" id="autoStatus">Automatisch verbinden nog niet gestart</div><p>Kies een pod in de Bluetooth-lijst. De handshake en tiklistener worden automatisch ingesteld. Voeg daarna de volgende toe of druk op Klaar.</p><div class="status" id="connectProgress">0 van 6 pods verbonden</div><button id="addPod">+ Volgende BlazePod verbinden</button><button id="finishPods" disabled>Klaar met verbinden</button><button id="resumePods" hidden>Meer pods toevoegen</button><div class="muted" id="wizardMessage">Begin met de eerste BlazePod.</div></section><section><h2>Experimentele scan: alle BlazePods</h2><p>Scan alle zichtbare BlazePods in één keer. Dit is een ontdekkingstest: scannen geeft niet automatisch toestemming om met de gevonden pods te verbinden. De bestaande verbindingswizard en het spel blijven werken.</p><button id="scanAll">Scan alle BlazePods</button><button id="stopAll" disabled>Stop scan</button><button id="checkGranted">Controleer eerder toegestane apparaten</button><div class="status" id="scanStatus">Nog niet gescand</div><div id="scanResults" class="muted">Geen apparaten gevonden.</div></section><div id="slots"></div><button id="alloff">Alle pods uit</button><button id="clear">Log wissen</button><h3>Diagnoselog</h3><pre id="log"></pre>
 <script>
 
 const UART='6e400001-b5a3-f393-e0a9-e50e24dcca9e',RX='6e400002-b5a3-f393-e0a9-e50e24dcca9e',COLOR_SERVICE='50c97bfa-4cb8-4c84-b745-0e58a0280cd6',COLOR='50c912a2-4cb8-4c84-b745-0e58a0280cd6',TAP_SERVICE='50c928bd-4cb8-4c84-b745-0e58a0280cd6',TAP='50c9727e-4cb8-4c84-b745-0e58a0280cd6';
 const $=id=>document.getElementById(id);
 const pods=Array.from({length:7},(_,i)=>i?{device:null,rx:null,color:null,tap:null,listener:null,listening:false,busy:false,connected:false,manufacturer:null,disconnectHandler:null,writeQueue:Promise.resolve()}:null);
-let leScan=null,scanListener=null;const discovered=new Map();
+let leScan=null,scanListener=null,autoBusy=false,autoCancel=false;const discovered=new Map();
 function scanSummary(){
  const entries=[...discovered.values()];
  $('scanStatus').textContent=entries.length+' unieke BlazePod(s) gezien';
@@ -23,7 +23,7 @@ $('scanAll').onclick=async()=>{
  scanListener=e=>{
   const d=e.device;if(!d||!(d.name||'').toLowerCase().includes('blazepod'))return;
   const manufacturer=getManufacturer(e);const id=d.id||'(geen apparaat-ID)';
-  const existing=discovered.get(id);discovered.set(id,{name:d.name||'BlazePod',id,data:manufacturer?tohex(manufacturer):'geen manufacturer-data',count:(existing?.count||0)+1});
+  const existing=discovered.get(id);discovered.set(id,{name:d.name||'BlazePod',id,data:manufacturer?tohex(manufacturer):'geen manufacturer-data',bytes:manufacturer||existing?.bytes||null,count:(existing?.count||0)+1});
   if(!existing)log(0,'SCAN GEVONDEN: '+(d.name||'BlazePod')+' · '+id+' · '+(manufacturer?tohex(manufacturer):'geen data'));
   scanSummary();
  };
@@ -46,8 +46,8 @@ for(let i=1;i<=6;i++)$('slots').insertAdjacentHTML('beforeend',`<section id="slo
 function log(i,s){const el=$('log');el.textContent+=new Date().toLocaleTimeString()+'  '+(i?'[Pod '+i+'] ':'')+s+'\n';if(el.textContent.length>25000)el.textContent=el.textContent.slice(-20000);el.scrollTop=el.scrollHeight}
 function tohex(a){return [...a].map(v=>v.toString(16).padStart(2,'0')).join(' ').toUpperCase()}
 function handshakeFromManufacturer(data){if(data.length<8)throw Error('Minstens 8 advertentiebytes vereist');let tail=data.slice(-5),offset=tail[0],crc=0xffffffff,poly=(0xedb88321+(offset%50))>>>0;for(let b of tail.slice(1)){crc=(crc^b)>>>0;for(let j=0;j<8;j++)crc=crc&1?((crc>>>1)^poly)>>>0:crc>>>1}crc=(crc^0xffffffff)>>>0;crc=(crc+((crc<<3)>>>0))>>>0;crc=(crc^(crc>>>11))>>>0;crc=(crc+((crc<<15)>>>0))>>>0;return Uint8Array.of(0x73,0x65,0x61,crc&255,(crc>>>8)&255,(crc>>>16)&255,(crc>>>24)&255)}
-function controls(i){const p=pods[i];$('connect'+i).disabled=p.busy||p.connected;$('disconnect'+i).disabled=!p.connected;$('green'+i).disabled=!p.connected||!p.color||game.running;$('red'+i).disabled=!p.connected||!p.color||game.running;$('off'+i).disabled=!p.connected||!p.color||game.running;$('listen'+i).disabled=!p.connected||!p.tap||p.listening;$('listen'+i).textContent=p.listening?'Luisteren actief':'Luister naar tikken'}
-function refresh(){for(let i=1;i<=6;i++)controls(i);const count=pods.slice(1).filter(p=>p.connected).length;const busy=pods.slice(1).some(p=>p.busy);$('connectProgress').textContent=count+' van 6 pods verbonden';$('addPod').disabled=busy||count===6||wizardDone||game.running;$('addPod').textContent=busy?'Verbinden...':count===6?'Alle zes verbonden':'+ Volgende BlazePod verbinden';$('finishPods').disabled=count===0||busy||wizardDone||game.running;$('resumePods').hidden=!wizardDone;$('resumePods').disabled=game.running||busy||count===6;$('startGame').disabled=game.running||ready().length<2;$('stopGame').disabled=!game.running;$('nextRound').disabled=!game.running}
+function controls(i){const p=pods[i];$('connect'+i).disabled=autoBusy||p.busy||p.connected;$('disconnect'+i).disabled=!p.connected;$('green'+i).disabled=!p.connected||!p.color||game.running;$('red'+i).disabled=!p.connected||!p.color||game.running;$('off'+i).disabled=!p.connected||!p.color||game.running;$('listen'+i).disabled=!p.connected||!p.tap||p.listening;$('listen'+i).textContent=p.listening?'Luisteren actief':'Luister naar tikken'}
+function refresh(){for(let i=1;i<=6;i++)controls(i);$('autoConnect').disabled=autoBusy||game.running;$('cancelAuto').disabled=!autoBusy;const count=pods.slice(1).filter(p=>p.connected).length;const busy=pods.slice(1).some(p=>p.busy);$('connectProgress').textContent=count+' van 6 pods verbonden';$('addPod').disabled=autoBusy||busy||count===6||wizardDone||game.running;$('addPod').textContent=busy?'Verbinden...':count===6?'Alle zes verbonden':'+ Volgende BlazePod verbinden';$('finishPods').disabled=count===0||busy||wizardDone||game.running;$('resumePods').hidden=!wizardDone;$('resumePods').disabled=game.running||busy||count===6;$('startGame').disabled=game.running||ready().length<2;$('stopGame').disabled=!game.running;$('nextRound').disabled=!game.running}
 function cleanup(i){const p=pods[i];if(p.tap&&p.listener){try{p.tap.removeEventListener('characteristicvaluechanged',p.listener)}catch(e){}}p.listener=null;p.listening=false;p.rx=p.color=p.tap=null;p.connected=false;p.busy=false;p.manufacturer=null;p.device=null;$('state'+i).textContent='Niet verbonden';$('slot'+i).classList.remove('active');if(game.running&&game.active===i)stopGame('Actieve pod verbroken');refresh()}
 function getManufacturer(e){const v=e.manufacturerData?.get?.(0x09D7);if(!v)return null;return Uint8Array.of(0xD7,0x09,...new Uint8Array(v.buffer,v.byteOffset,v.byteLength))}
 async function waitAdvertisement(device){if(typeof device.watchAdvertisements!=='function')throw Error('watchAdvertisements niet ondersteund');return new Promise((resolve,reject)=>{let settled=false,timer;const finish=(err,data)=>{if(settled)return;settled=true;clearTimeout(timer);device.removeEventListener('advertisementreceived',handler);err?reject(err):resolve(data)};const handler=e=>{const data=getManufacturer(e);if(data)finish(null,data)};timer=setTimeout(()=>finish(Error('Geen actuele advertentiedata binnen 8 seconden')),8000);device.addEventListener('advertisementreceived',handler);Promise.resolve().then(()=>device.watchAdvertisements()).catch(e=>finish(e))})}
@@ -59,6 +59,113 @@ function renderScore(){ $('score').textContent=game.score;$('misses').textConten
 function stopGame(reason='Gestopt'){game.running=false;game.token++;clearTimeout(game.timer);game.timer=null;game.active=0;game.transition=false;$('gameState').textContent=reason;for(let i=1;i<=6;i++)$('slot'+i).classList.remove('active');refresh();Promise.all(ready().map(i=>setColor(i,0,0,0)));log(0,'Spel: '+reason)}
 async function nextRound(){if(!game.running)return;const token=++game.token;game.transition=true;clearTimeout(game.timer);const prev=game.active;game.active=0;if(prev){$('slot'+prev).classList.remove('active');await setColor(prev,0,0,0)}if(!game.running||token!==game.token)return;const options=ready();if(options.length<2){stopGame('Te weinig verbonden pods');return}const choices=options.filter(i=>i!==game.lastPod);const list=choices.length?choices:options;const i=list[Math.floor(Math.random()*list.length)];game.active=i;game.lastPod=i;const ok=await setColor(i,255,0,0);if(!game.running||token!==game.token)return;if(!ok){stopGame('Kleurcommando mislukt');return}game.startAt=performance.now();game.transition=false;$('slot'+i).classList.add('active');$('gameState').textContent='Tik op de groene pod!';log(i,'RONDE GESTART');game.timer=setTimeout(()=>{if(!game.running||token!==game.token||game.transition)return;game.misses++;renderScore();$('gameState').textContent='Te laat!';log(i,'TIMEOUT');nextRound()},Number($('duration').value))}
 function onTap(i){if(!game.running||game.transition)return;if(game.active!==i){const now=performance.now();if(now-(game.wrongTapAt[i]||0)<350)return;game.wrongTapAt[i]=now;game.misses++;renderScore();$('gameState').textContent='Verkeerde pod! Tik op de groene.';log(i,'MISSER: verkeerde pod');return;}game.transition=true;clearTimeout(game.timer);const ms=Math.round(performance.now()-game.startAt);game.score++;renderScore();$('reaction').textContent=ms+' ms';$('gameState').textContent='Raak! '+ms+' ms';log(i,'RAAK! '+ms+' ms');nextRound()}
+
+// Automatisch verbinden: eerst BLE-advertenties verzamelen, daarna alleen
+// eerder toegestane apparaten gebruiken. Geen requestDevice()-dialoog.
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function scanForAuto(ms=6500){
+ if(typeof navigator.bluetooth?.requestLEScan!=='function')throw Error('requestLEScan niet beschikbaar');
+ stopLEScan();discovered.clear();scanSummary();
+ const listener=e=>{
+  const d=e.device;
+  if(!d||(d.name||'').toLowerCase()!=='blazepod'||!d.id)return;
+  const bytes=getManufacturer(e);
+  const old=discovered.get(d.id);
+  discovered.set(d.id,{id:d.id,name:d.name,bytes:bytes||old?.bytes||null,
+    data:bytes?tohex(bytes):(old?.data||'geen data'),count:(old?.count||0)+1});
+  scanSummary();
+ };
+ let scan=null;
+ navigator.bluetooth.addEventListener('advertisementreceived',listener);
+ try{
+  scan=await navigator.bluetooth.requestLEScan({filters:[{name:'BlazePod'}],keepRepeatedDevices:true});
+  log(0,'Automatische scan gestart');
+  const end=Date.now()+ms;
+  while(Date.now()<end&&!autoCancel){
+   if([...discovered.values()].filter(x=>x.bytes?.length>=8).length>=6)break;
+   await sleep(250);
+  }
+ }finally{
+  try{scan?.stop()}catch(e){}
+  navigator.bluetooth.removeEventListener('advertisementreceived',listener);
+  log(0,'Automatische scan afgerond: '+discovered.size+' unieke pods');
+ }
+}
+async function connectKnown(i,device,advertised){
+ const p=pods[i];
+ if(p.connected||p.busy) return false;
+ p.busy=true;p.device=device;
+ $('state'+i).textContent='Automatisch verbinden...';refresh();
+ try{
+  if(pods.some((x,j)=>j!==i&&x?.connected&&x.device?.id===device.id))
+    throw Error('Deze pod is al verbonden');
+  // Advertentiedata uit recente scan gebruiken; bij ontbreken of fouten
+  // rechtstreeks op deze pod luisteren, net als in de werkende v6.1.
+  let data=advertised;
+  if(!data||data.length<8){
+   $('state'+i).textContent='Advertentiedata ophalen...';
+   data=await waitAdvertisement(device);
+  }
+  p.manufacturer=data;
+  $('info'+i).textContent='Manufacturer: '+tohex(data);
+  log(i,'Manufacturer: '+tohex(data));
+  const server=await device.gatt.connect();
+  p.disconnectHandler=()=>{log(i,'VERBINDING VERBROKEN');cleanup(i)};
+  device.addEventListener('gattserverdisconnected',p.disconnectHandler);
+  p.rx=await(await server.getPrimaryService(UART)).getCharacteristic(RX);
+  p.color=await(await server.getPrimaryService(COLOR_SERVICE)).getCharacteristic(COLOR);
+  p.tap=await(await server.getPrimaryService(TAP_SERVICE)).getCharacteristic(TAP);
+  const packet=handshakeFromManufacturer(data);
+  log(i,'Handshake: '+tohex(packet));
+  await p.rx.writeValue(packet);
+  p.connected=true;
+  $('state'+i).textContent='Verbonden';
+  await listen(i);
+  if(!p.listening)throw Error('Tiklistener niet actief');
+  log(i,'Automatisch verbonden en luisterend');
+  return true;
+ }catch(e){
+  log(i,'AUTO VERBINDINGSFOUT: '+e.name+' '+e.message);
+  try{device.gatt?.disconnect()}catch(_){}
+  cleanup(i);
+  $('state'+i).textContent='Fout: '+e.message;
+  return false;
+ }finally{p.busy=false;refresh()}
+}
+$('autoConnect').onclick=async()=>{
+ if(autoBusy||game.running)return;
+ autoBusy=true;autoCancel=false;wizardDone=false;refresh();
+ let successes=0,failures=0;
+ try{
+  if(typeof navigator.bluetooth?.getDevices!=='function')throw Error('getDevices niet beschikbaar');
+  const granted=(await navigator.bluetooth.getDevices())
+   .filter(d=>(d.name||'').toLowerCase()==='blazepod');
+  log(0,granted.length+' eerder toegestane BlazePods');
+  if(!granted.length)throw Error('Geen eerder toegestane pods. Koppel ze eerst eenmalig handmatig.');
+  $('autoStatus').textContent='Scannen naar actuele manufacturer-data...';
+  await scanForAuto();
+  if(autoCancel)return;
+  const candidates=granted.filter(d=>!pods.some(p=>p?.connected&&p.device?.id===d.id));
+  log(0,candidates.length+' toegestane pods nog niet verbonden');
+  for(const d of candidates){
+   if(autoCancel)break;
+   const slot=[1,2,3,4,5,6].find(i=>!pods[i].connected&&!pods[i].busy);
+   if(!slot)break;
+   $('autoStatus').textContent='Verbinden: '+(successes+failures+1)+' van '+candidates.length;
+   const data=discovered.get(d.id)?.bytes||null;
+   if(!data)log(slot,'Geen scangegevens voor ID; probeer watchAdvertisements');
+   const ok=await connectKnown(slot,d,data);
+   if(ok)successes++;else failures++;
+  }
+  $('autoStatus').textContent=(autoCancel?'Afgebroken. ':'Gereed. ')+successes+' verbonden, '+failures+' mislukt.';
+  log(0,$('autoStatus').textContent);
+ }catch(e){
+  $('autoStatus').textContent='Automatisch verbinden mislukt: '+e.message;
+  log(0,'AUTOFOUT: '+e.name+' '+e.message);
+ }finally{autoBusy=false;refresh()}
+};
+$('cancelAuto').onclick=()=>{autoCancel=true;$('autoStatus').textContent='Stoppen na huidige verbindingspoging...'};
+
 $('addPod').onclick=()=>{if(wizardDone||game.running)return;const slot=[1,2,3,4,5,6].find(i=>!pods[i].connected&&!pods[i].busy);if(slot)connect(slot)};
 $('finishPods').onclick=()=>{wizardDone=true;const n=ready().length;$('wizardMessage').textContent=n+' pods gereed. '+(n>=2?'Je kunt Whack-a-Mole starten.':'Voor Whack-a-Mole heb je minimaal twee pods nodig.');refresh()};
 $('resumePods').onclick=()=>{wizardDone=false;$('wizardMessage').textContent='Je kunt weer pods toevoegen.';refresh()};
@@ -66,6 +173,6 @@ $('startGame').onclick=async()=>{if(game.running||ready().length<2)return;game.r
 $('stopGame').onclick=()=>stopGame();
 $('nextRound').onclick=()=>{if(game.running){game.misses++;renderScore();nextRound()}};
 for(let i=1;i<=6;i++){$('connect'+i).onclick=()=>connect(i);$('disconnect'+i).onclick=()=>pods[i].device?.gatt?.disconnect();$('green'+i).onclick=()=>setColor(i,255,0,0);$('red'+i).onclick=()=>setColor(i,0,0,255);$('off'+i).onclick=()=>setColor(i,0,0,0);$('listen'+i).onclick=()=>listen(i);controls(i)}
-$('alloff').onclick=()=>{if(game.running)stopGame('Gestopt via Alle pods uit');else Promise.all(ready().map(i=>setColor(i,0,0,0)))};$('clear').onclick=()=>$('log').textContent='';refresh();log(0,'Versie 6.1 geladen. Test requestLEScan met alle pods aan.');
+$('alloff').onclick=()=>{if(game.running)stopGame('Gestopt via Alle pods uit');else Promise.all(ready().map(i=>setColor(i,0,0,0)))};$('clear').onclick=()=>$('log').textContent='';refresh();log(0,'Versie 6.2 geladen. Druk op Verbind alle toegestane BlazePods.');
 
 </script></main></body></html>
